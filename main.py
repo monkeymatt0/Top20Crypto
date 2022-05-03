@@ -36,7 +36,22 @@ def bestAndWorst10CriptoCurrencies(criptoCurrencies) -> dict:
 
 # La quantità di denaro necessaria per acquistare una unità di ciascuna delle prime 20 criptovalute*
 def sumToBuyUnitOfEach20TopCrypto(criptoCurrencies) -> float:
-    pass
+
+    ret = 0.0
+    currenciesSymbolMarketcap = []
+
+    for currency in criptoCurrencies:
+        currenciesSymbolMarketcap.append((currency['symbol'], currency['quote']['USD']['market_cap'], currency['quote']['USD']['price']))
+
+    currenciesSymbolMarketcap.sort(key=itemgetter(1), reverse=True)
+
+    print(currenciesSymbolMarketcap)
+
+    for t in currenciesSymbolMarketcap[0:20]:
+
+        ret += float(t[2])
+
+    return ret
 
 
 # La quantità di denaro necessaria per acquistare una unità di tutte le criptovalute il cui volume delle ultime 24 ore sia superiore a 76.000.000$
@@ -76,3 +91,6 @@ print(f"max volume in 24h: {MaxVolCripto24H}")
 BestAndWorst10Currencies = bestAndWorst10CriptoCurrencies(currencies['data'])
 print(f"best 10 crypto: {BestAndWorst10Currencies['best10']}\n\n")
 print(f"worst 10 crypto: {BestAndWorst10Currencies['worst10']}")
+
+SumToBuyUnitOfEach20TopCrypto = sumToBuyUnitOfEach20TopCrypto(currencies['data'][:20])
+print(f"Sum to buy one of each best 20 crypto: {SumToBuyUnitOfEach20TopCrypto}$")
