@@ -3,6 +3,7 @@ from operator import itemgetter
 
 import requests
 from pprint import pprint
+import json
 
 
 # La criptovaluta con il volume maggiore (in $) delle ultime 24 ore
@@ -28,7 +29,7 @@ def bestAndWorst10CriptoCurrencies(criptoCurrencies) -> dict:
     currenciesSymbolVariation.sort(key=itemgetter(1), reverse=True)
 
     bestCurrencies = currenciesSymbolVariation[0:11]
-    worstCurrencies = currenciesSymbolVariation[len(currenciesSymbolVariation)-10:len(currenciesSymbolVariation)]
+    worstCurrencies = currenciesSymbolVariation[len(currenciesSymbolVariation) - 10:len(currenciesSymbolVariation)]
     worstCurrencies.reverse()
 
     return {'best10': bestCurrencies, 'worst10': worstCurrencies}
@@ -36,32 +37,33 @@ def bestAndWorst10CriptoCurrencies(criptoCurrencies) -> dict:
 
 # La quantità di denaro necessaria per acquistare una unità di ciascuna delle prime 20 criptovalute*
 def sumToBuyUnitOfEach20TopCrypto(criptoCurrencies) -> float:
-
     ret = 0.0
-    currenciesSymbolMarketcap = []
 
-    for currency in criptoCurrencies:
-        currenciesSymbolMarketcap.append((currency['symbol'], currency['quote']['USD']['market_cap'], currency['quote']['USD']['price']))
-
-    currenciesSymbolMarketcap.sort(key=itemgetter(1), reverse=True)
-
-    print(currenciesSymbolMarketcap)
-
-    for t in currenciesSymbolMarketcap[0:20]:
-
-        ret += float(t[2])
+    for t in criptoCurrencies:
+        ret += float(t['quote']['USD']['price'])
 
     return ret
 
 
 # La quantità di denaro necessaria per acquistare una unità di tutte le criptovalute il cui volume delle ultime 24 ore sia superiore a 76.000.000$
-def sumToBuyBy25HVolume(criptoCurrencies) -> float:
-    pass
+def sumToBuyBy24HVolume(criptoCurrencies) -> float:
+    ret = 0.0
+
+    for criptoCurrency in criptoCurrencies:
+        if criptoCurrency['quote']['USD']['volume_24h'] > 76000000:
+            ret += criptoCurrency['quote']['USD']['price']
+
+    return ret
 
 
 # La percentuale di guadagno o perdita che avreste realizzato se aveste comprato una unità di ciascuna delle prime 20 criptovalute* il giorno prima (ipotizzando che la classifca non sia cambiata)
-def overview():
-    pass
+def possibleProfit(criptoCurrencies) -> float:
+    ret = 0.0
+
+    for currency in criptoCurrencies:
+        ret += currency['quote']['USD']['percent_change_24h']
+
+    return ret
 
 
 # Per evitare che il vostro programma sovrascriva lo stesso file JSON, denominatelo con la data del momento in cui il programma viene eseguito.
@@ -83,14 +85,20 @@ header = {
 }
 
 currencies = requests.get(url=url, headers=header, params=params).json()
-pprint(currencies)  # Stampa delle valute ottenute
+pprint(currencies['data'][:20])  # Stampa delle valute ottenute
 
 MaxVolCripto24H = maxVolCripto24H(currencies['data'])  # Recupero la valuta che ha il volume maggiore nelle ultime 24 ore
-print(f"max volume in 24h: {MaxVolCripto24H}")
+print(f"max volume in 24h: {MaxVolCripto24H}\n\n")
 
 BestAndWorst10Currencies = bestAndWorst10CriptoCurrencies(currencies['data'])
 print(f"best 10 crypto: {BestAndWorst10Currencies['best10']}\n\n")
-print(f"worst 10 crypto: {BestAndWorst10Currencies['worst10']}")
+print(f"worst 10 crypto: {BestAndWorst10Currencies['worst10']}\n\n")
 
 SumToBuyUnitOfEach20TopCrypto = sumToBuyUnitOfEach20TopCrypto(currencies['data'][:20])
-print(f"Sum to buy one of each best 20 crypto: {SumToBuyUnitOfEach20TopCrypto}$")
+print(f"Sum to buy one of each best 20 crypto: {SumToBuyUnitOfEach20TopCrypto}$\n\n")
+
+SumToBuyBy24HVolume = sumToBuyBy24HVolume(currencies['data'])
+print(f"Sum to buy one of each cripto with more then 76000000$ of market cap in the last 24h: {SumToBuyBy24HVolume}\n\n")
+
+PossibleProfit = possibleProfit(currencies['data'][:20])
+print(f"Possible profit: {PossibleProfit}%")
