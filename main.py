@@ -56,7 +56,8 @@ def sumToBuyBy24HVolume(criptoCurrencies) -> float:
     return ret
 
 
-# La percentuale di guadagno o perdita che avreste realizzato se aveste comprato una unità di ciascuna delle prime 20 criptovalute* il giorno prima (ipotizzando che la classifca non sia cambiata)
+# La percentuale di guadagno o perdita che avreste realizzato se aveste comprato una unità di ciascuna delle prime 20 criptovalute* il giorno prima (ipotizzando che la classifca
+# non sia cambiata)
 def possibleProfit(criptoCurrencies) -> float:
     ret = 0.0
 
@@ -66,9 +67,14 @@ def possibleProfit(criptoCurrencies) -> float:
     return ret
 
 
-# Per evitare che il vostro programma sovrascriva lo stesso file JSON, denominatelo con la data del momento in cui il programma viene eseguito.
+def saveIntoJsonFile(data) -> str:
 
-# *Le prime 20 criptovalute secondo la classifica predefinita di CoinMarketCap, quella visibile sul sito, dunque ordinate per capitalizzazione.
+    filename = f"{datetime.now()}.json"
+    with open(filename, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=4)
+
+    return filename
+
 
 # Url per contattare l'API e recuperare le informazioni sulle currencies
 url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
@@ -102,3 +108,15 @@ print(f"Sum to buy one of each cripto with more then 76000000$ of market cap in 
 
 PossibleProfit = possibleProfit(currencies['data'][:20])
 print(f"Possible profit: {PossibleProfit}%")
+
+data = {
+    'max volume in 24h': MaxVolCripto24H,
+    'best 10 crypto:': BestAndWorst10Currencies['best10'],
+    'worst 10 crypto:': BestAndWorst10Currencies['worst10'],
+    'Sum to buy one of each best 20 crypto': SumToBuyUnitOfEach20TopCrypto,
+    'Sum to buy one of each cripto with more then 76000000$ of market cap in the last 24h': SumToBuyBy24HVolume,
+    'Possible profit (%)': PossibleProfit
+}
+
+filename = saveIntoJsonFile(data) # Inserimento all'interno del file json
+print(f"**************** REPORT SALVATO IN {filename} ****************")
